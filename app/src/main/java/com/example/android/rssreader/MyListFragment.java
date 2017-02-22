@@ -9,13 +9,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.example.android.rssfeedlibrary.RssFeedProvider;
 import com.example.android.rssfeedlibrary.RssItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MyListFragment extends Fragment {
@@ -24,27 +21,47 @@ public class MyListFragment extends Fragment {
     private OnItemSelectedListener listener;
     RssItemAdapter adapter;
     List<RssItem> rssItems;
+    RecyclerView mRecyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_rsslist_overview, container, false);
-        RecyclerView mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
         rssItems = RssApplication.list;
         adapter = new RssItemAdapter(rssItems, this);
         mRecyclerView.setAdapter(adapter);
-        if(rssItems.isEmpty()) { // #1
+        if (rssItems.isEmpty()) { // #1
             updateListContent();
         }
+
+        // We need to detect scrolling changes in the RecyclerView
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    listener.toolbarAnimateShow();
+                } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    listener.toolbarAnimateHide();
+
+                }
+            }
+        });
+
 
         return view;
     }
 
+
     public interface OnItemSelectedListener {
         void onRssItemSelected(String link);
+
+        void toolbarAnimateShow();
+
+        void toolbarAnimateHide();
     }
-    
+
 
     @Override
     public void onAttach(Context context) {
@@ -55,6 +72,7 @@ public class MyListFragment extends Fragment {
             throw new ClassCastException(context.toString()
                     + " must implement MyListFragment.OnItemSelectedListener");
         }
+
     }
 
     public void updateListContent() {
@@ -82,7 +100,7 @@ public class MyListFragment extends Fragment {
         listener.onRssItemSelected(uri);
     }
 
-    private static class ParseTask extends  AsyncTask<String, Void, List<RssItem>> {
+    private static class ParseTask extends AsyncTask<String, Void, List<RssItem>> {
 
         private MyListFragment fragment;
 
@@ -96,8 +114,6 @@ public class MyListFragment extends Fragment {
             List<RssItem> list = RssFeedProvider.parse(params[0]);
             return list;
         }
-
-
 
 
         @Override

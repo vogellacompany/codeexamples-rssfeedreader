@@ -1,13 +1,16 @@
 package com.example.android.rssreader;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.widget.Toolbar;
@@ -16,12 +19,13 @@ public class RssfeedActivity extends Activity implements
         MyListFragment.OnItemSelectedListener {
 
     SelectionStateFragment stateFragment;
+    Toolbar tb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
+        tb = (Toolbar) findViewById(R.id.toolbar);
         setActionBar(tb);
         stateFragment =
                 (SelectionStateFragment) getFragmentManager()
@@ -33,12 +37,12 @@ public class RssfeedActivity extends Activity implements
                     .add(stateFragment, "headless").commit();
         }
 
-        if (findViewById(R.id.fragment_container) == null) {
+        if (getResources().getBoolean(R.bool.twoPaneMode)) {
             // restore state
             if (stateFragment.lastSelection.length()>0) {
                 onRssItemSelected(stateFragment.lastSelection);
             }
-            // all good, we use the fragments defined in the layout
+            // otherwise all is good, we use the fragments defined in the layout
             return;
         }
         // if savedInstanceState is null we do some cleanup
@@ -62,6 +66,7 @@ public class RssfeedActivity extends Activity implements
 
     @Override
     public void onRssItemSelected(String link) {
+
         stateFragment.lastSelection = link;
         if (getResources().getBoolean(R.bool.twoPaneMode)) {
             DetailFragment fragment = (DetailFragment) getFragmentManager()
@@ -87,6 +92,34 @@ public class RssfeedActivity extends Activity implements
             transaction.commit();
 
         }
+    }
+
+    @Override
+    public void toolbarAnimateShow() {
+        tb.animate()
+                .translationY(0)
+                .setInterpolator(new LinearInterpolator())
+                .setDuration(180)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        tb.setVisibility(View.VISIBLE);
+                    }
+                });
+    }
+
+    @Override
+    public void toolbarAnimateHide() {
+        tb.animate()
+                .translationY(tb.getHeight())
+                .setInterpolator(new LinearInterpolator())
+                .setDuration(180)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                       tb.setVisibility(View.GONE);
+                    }
+                });
     }
 
     @Override

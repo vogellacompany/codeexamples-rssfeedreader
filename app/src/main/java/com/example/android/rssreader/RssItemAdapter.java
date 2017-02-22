@@ -7,9 +7,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.android.rssfeedlibrary.RssItem;
 
 import java.util.List;
+import java.util.Random;
 
 public class RssItemAdapter
         extends RecyclerView.Adapter<RssItemAdapter.ViewHolder> {
@@ -54,6 +56,11 @@ public class RssItemAdapter
                 myListFragment.updateDetail(rssItem.getLink());
             }
         });
+        // to download some random data
+        Random r = new Random();
+        int i = r.nextInt(10);
+        Glide.with(myListFragment).load("http://lorempixel.com/400/200/sports/"+i+"/").
+                into(holder.imageView);
     }
 
     @Override
