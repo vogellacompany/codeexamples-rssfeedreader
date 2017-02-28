@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:defaultValue="Default value"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="URL RSSfeed"
+        android:key="edit_text_preference_1" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:title="active"
+        android:key="backgrounddownload" />
+</PreferenceScreen>

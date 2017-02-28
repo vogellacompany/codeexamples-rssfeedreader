@@ -2,7 +2,23 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
-        <!-- Customize your theme here. -->
+        <item name="android:colorPrimaryDark">#c2185b</item>
     </style>
+
+    <style name="MyToolbar" parent="android:Widget.Material.Toolbar">
+        <item name="android:background">@color/primary_dark_material_light</item>
+    </style>
+
+    <style name="nicetextstyle">
+        <item name="android:background">@color/colorAccent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+        <item name="android:textSize">50dip</item>
+    </style>
+
+    <style name="larsseintheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:navigationBarColor">@android:color/yellow</item>
+    </style>
+
 
 </resources>

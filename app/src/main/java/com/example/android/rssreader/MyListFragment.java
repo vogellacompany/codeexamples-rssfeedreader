@@ -1,7 +1,12 @@
 package com.example.android.rssreader;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,19 +14,39 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 
 import com.example.android.rssfeedlibrary.RssFeedProvider;
 import com.example.android.rssfeedlibrary.RssItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyListFragment extends Fragment {
 
-    ParseTask parseTask;
     private OnItemSelectedListener listener;
     RssItemAdapter adapter;
     List<RssItem> rssItems;
     RecyclerView mRecyclerView;
+
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            setListContent(new ArrayList<RssItem>(RssApplication.list));
+        }
+    };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().registerReceiver(receiver, new IntentFilter(RSSDownloadService.NOTIFICATION));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        getActivity().unregisterReceiver(receiver);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,9 +66,29 @@ public class MyListFragment extends Fragment {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    listener.toolbarAnimateShow();
+                    final View tb = getActivity().findViewById(R.id.toolbar);
+                    tb.animate()
+                            .translationY(0)
+                            .setInterpolator(new LinearInterpolator())
+                            .setDuration(180)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+                                    tb.setVisibility(View.VISIBLE);
+                                }
+                            });
                 } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    listener.toolbarAnimateHide();
+                    final View tb = getActivity().findViewById(R.id.toolbar);
+                    tb.animate()
+                            .translationY(tb.getHeight())
+                            .setInterpolator(new LinearInterpolator())
+                            .setDuration(180)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    tb.setVisibility(View.GONE);
+                                }
+                            });
 
                 }
             }
@@ -51,6 +96,12 @@ public class MyListFragment extends Fragment {
 
 
         return view;
+    }
+
+    private void updateListContent() {
+        Intent intent = new Intent(getActivity(), RSSDownloadService.class);
+        intent.putExtra("uri", "http://www.vogella.com/article.rss");
+        getActivity().startService(intent);
     }
 
 
@@ -72,27 +123,14 @@ public class MyListFragment extends Fragment {
             throw new ClassCastException(context.toString()
                     + " must implement MyListFragment.OnItemSelectedListener");
         }
-
     }
 
-    public void updateListContent() {
-        if (parseTask == null) {
 
-            parseTask = new ParseTask();
-
-            parseTask.setFragment(this);
-
-            parseTask.execute("http://www.vogella.com/article.rss");
-
-        }
-    }
 
     public void setListContent(List<RssItem> result) {
         rssItems.clear();
         rssItems.addAll(result);
         adapter.notifyDataSetChanged();
-        parseTask.setFragment(null);
-        parseTask = null;
     }
 
     // triggers update of the details fragment
@@ -117,7 +155,8 @@ public class MyListFragment extends Fragment {
 
 
         @Override
-        protected void onPostExecute(List<RssItem> result) {
+        protected void onPostExecute(List<RssItem> result)
+        {
             fragment.setListContent(result);
         }
     }

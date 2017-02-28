@@ -10,9 +10,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 import android.widget.Toolbar;
 
 public class RssfeedActivity extends Activity implements
@@ -31,7 +32,7 @@ public class RssfeedActivity extends Activity implements
                 (SelectionStateFragment) getFragmentManager()
                         .findFragmentByTag("headless");
 
-        if(stateFragment == null) {
+        if (stateFragment == null) {
             stateFragment = new SelectionStateFragment();
             getFragmentManager().beginTransaction()
                     .add(stateFragment, "headless").commit();
@@ -39,7 +40,7 @@ public class RssfeedActivity extends Activity implements
 
         if (getResources().getBoolean(R.bool.twoPaneMode)) {
             // restore state
-            if (stateFragment.lastSelection.length()>0) {
+            if (stateFragment.lastSelection.length() > 0) {
                 onRssItemSelected(stateFragment.lastSelection);
             }
             // otherwise all is good, we use the fragments defined in the layout
@@ -51,7 +52,7 @@ public class RssfeedActivity extends Activity implements
             getFragmentManager().executePendingTransactions();
             Fragment fragmentById = getFragmentManager().
                     findFragmentById(R.id.fragment_container);
-            if (fragmentById!=null) {
+            if (fragmentById != null) {
                 getFragmentManager().beginTransaction()
                         .remove(fragmentById).commit();
             }
@@ -108,6 +109,7 @@ public class RssfeedActivity extends Activity implements
                 });
     }
 
+
     @Override
     public void toolbarAnimateHide() {
         tb.animate()
@@ -117,7 +119,7 @@ public class RssfeedActivity extends Activity implements
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                       tb.setVisibility(View.GONE);
+                        tb.setVisibility(View.GONE);
                     }
                 });
     }
@@ -140,20 +142,26 @@ public class RssfeedActivity extends Activity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                if (getResources().getBoolean(R.bool.twoPaneMode)) {
-                    MyListFragment fragment = (MyListFragment) getFragmentManager().findFragmentById(R.id.listFragment);
-                    fragment.updateListContent();
-                } else {
-                    Fragment fragmentById = getFragmentManager().findFragmentById(R.id.fragment_container);
-                    if (fragmentById instanceof MyListFragment) {
-                        MyListFragment fragment = (MyListFragment) fragmentById;
-                        fragment.updateListContent();
-                    }
-                }
+                Intent intent = new Intent(this, RSSDownloadService.class);
+                intent.putExtra("uri", "http://www.vogella.com/article.rss");
+                startService(intent);
+                View refreshButton = tb.findViewById(R.id.action_refresh);
+//                refreshButton.animate().rotation(100f).setDuration(2000);
+                RotateAnimation rotate =
+                        new RotateAnimation(180, 360,
+                        Animation.RELATIVE_TO_SELF,
+                        0.5f,
+                                Animation.RELATIVE_TO_SELF, 0.5f);
+                rotate.setDuration(1000);
+                rotate.setRepeatCount(Animation.INFINITE);
+                refreshButton.startAnimation(rotate);
 
                 return true;
+
             case R.id.action_settings:
-                Toast.makeText(this, "Action Settings selected", Toast.LENGTH_SHORT).show();
+                Intent intent1 = new Intent(this, MyPreferences.class);
+                startActivity(intent1);
+
                 return true;
             case R.id.action_network:
                 Intent wirelessIntent = new Intent("android.settings.WIRELESS_SETTINGS");

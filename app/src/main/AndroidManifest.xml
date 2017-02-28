@@ -17,6 +17,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
+        <service android:name=".RSSDownloadService">
+
+        </service>
+        <activity android:name=".MyPreferences"></activity>
+        </application>
 
 </manifest>
