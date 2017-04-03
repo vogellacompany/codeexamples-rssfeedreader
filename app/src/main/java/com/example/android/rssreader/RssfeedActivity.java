@@ -142,7 +142,7 @@ public class RssfeedActivity extends Activity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                Intent intent = new Intent(this, RSSDownloadService.class);
+                Intent intent = new Intent(this, MeinDownloadService.class);
                 intent.putExtra("uri", "http://www.vogella.com/article.rss");
                 startService(intent);
                 View refreshButton = tb.findViewById(R.id.action_refresh);
@@ -171,5 +171,23 @@ public class RssfeedActivity extends Activity implements
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateRefresh(){
+        if (getResources().getBoolean(R.bool.twoPaneMode)) {
+            MyListFragment fragment = (MyListFragment) getFragmentManager()
+                    .findFragmentById(R.id.listFragment);
+            fragment.setRefreshing();
+
+        } else {
+            // replace the fragment
+            // Create fragment and give it an argument for the selected article
+            Fragment fragment = getFragmentManager()
+                    .findFragmentById(R.id.fragment_container);
+            if (fragment instanceof  MyListFragment) {
+                ((MyListFragment) fragment).setRefreshing();
+            }
+
+        }
     }
 }

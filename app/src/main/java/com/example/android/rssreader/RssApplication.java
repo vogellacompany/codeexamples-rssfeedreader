@@ -9,5 +9,6 @@ import java.util.List;
 
 
 public class RssApplication extends Application {
-    public static List<RssItem> list = new ArrayList<RssItem>();
+    public static List<RssItem> list = new ArrayList<>();
+    public static int currentElementInList =0;
 }

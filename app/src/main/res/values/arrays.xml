@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <string-array name="ide_array">
+            <item>Eclipse </item>
+            <item>IntelliJ</item>
+            <item>Netbeans</item>
+            <item>Visual Studio</item>
+            <item>Android Studio</item>
+        </string-array>
+</resources>

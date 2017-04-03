@@ -9,11 +9,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.LinearInterpolator;
 
 import com.example.android.rssfeedlibrary.RssFeedProvider;
@@ -35,6 +37,7 @@ public class MyListFragment extends Fragment {
             setListContent(new ArrayList<RssItem>(RssApplication.list));
         }
     };
+    private SwipeRefreshLayout swipe;
 
     @Override
     public void onResume() {
@@ -48,19 +51,26 @@ public class MyListFragment extends Fragment {
         getActivity().unregisterReceiver(receiver);
     }
 
+
+    public void setRefreshing() {
+        swipe.setRefreshing(true);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_rsslist_overview, container, false);
+        swipe = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefresh);
+
         mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.HORIZONTAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         rssItems = RssApplication.list;
+//        mRecyclerView.getVerticalScrollbarPosition();
         adapter = new RssItemAdapter(rssItems, this);
         mRecyclerView.setAdapter(adapter);
         if (rssItems.isEmpty()) { // #1
             updateListContent();
         }
-
         // We need to detect scrolling changes in the RecyclerView
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -79,7 +89,7 @@ public class MyListFragment extends Fragment {
                             });
                 } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
                     final View tb = getActivity().findViewById(R.id.toolbar);
-                    tb.animate()
+                    ViewPropertyAnimator viewPropertyAnimator = tb.animate()
                             .translationY(tb.getHeight())
                             .setInterpolator(new LinearInterpolator())
                             .setDuration(180)
@@ -89,6 +99,8 @@ public class MyListFragment extends Fragment {
                                     tb.setVisibility(View.GONE);
                                 }
                             });
+
+//                    viewPropertyAnimator.cancel();
 
                 }
             }
@@ -125,13 +137,36 @@ public class MyListFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+//        LinearLayoutManager layoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+//        layoutManager.scrollToPosition(RssApplication.currentElementInList);
+    }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+//        LinearLayoutManager layoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+//        RssApplication.currentElementInList = layoutManager.findFirstCompletelyVisibleItemPosition();
+    }
+
+    BroadcastReceiver br = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            setListContent(RssApplication.list);
+        }
+    };
 
     public void setListContent(List<RssItem> result) {
         rssItems.clear();
         rssItems.addAll(result);
         adapter.notifyDataSetChanged();
+        swipe.setRefreshing(false);
+
     }
+
+
 
     // triggers update of the details fragment
     public void updateDetail(String uri) {  // #<1>
@@ -155,8 +190,7 @@ public class MyListFragment extends Fragment {
 
 
         @Override
-        protected void onPostExecute(List<RssItem> result)
-        {
+        protected void onPostExecute(List<RssItem> result) {
             fragment.setListContent(result);
         }
     }

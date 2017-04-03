@@ -16,9 +16,5 @@
         <item name="android:textSize">50dip</item>
     </style>
 
-    <style name="larsseintheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:navigationBarColor">@android:color/yellow</item>
-    </style>
-
 
 </resources>
