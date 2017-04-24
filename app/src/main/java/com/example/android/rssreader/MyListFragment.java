@@ -10,13 +10,15 @@ import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.LinearInterpolator;
+import android.widget.Toast;
 
 import com.example.android.rssfeedlibrary.RssFeedProvider;
 import com.example.android.rssfeedlibrary.RssItem;
@@ -31,38 +33,61 @@ public class MyListFragment extends Fragment {
     List<RssItem> rssItems;
     RecyclerView mRecyclerView;
 
+
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             setListContent(new ArrayList<RssItem>(RssApplication.list));
         }
     };
-    private SwipeRefreshLayout swipe;
+
 
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(receiver, new IntentFilter(RSSDownloadService.NOTIFICATION));
+        getContext().registerReceiver(receiver, new IntentFilter(RSSDownloadService.NOTIFICATION));
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        getActivity().unregisterReceiver(receiver);
     }
 
+    private SwipeRefreshLayout swipe;
 
-    public void setRefreshing() {
-        swipe.setRefreshing(true);
-    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_rsslist_overview, container, false);
         swipe = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefresh);
+        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateListContent();
+            }
+        });
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
-        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.HORIZONTAL);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback =
+                new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                Toast.makeText(getContext(), "Swiped out", Toast.LENGTH_LONG).show();
+                rssItems.remove(viewHolder.getAdapterPosition());
+                adapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
         mRecyclerView.setLayoutManager(mLayoutManager);
         rssItems = RssApplication.list;
 //        mRecyclerView.getVerticalScrollbarPosition();
@@ -117,6 +142,8 @@ public class MyListFragment extends Fragment {
     }
 
 
+
+
     public interface OnItemSelectedListener {
         void onRssItemSelected(String link);
 
@@ -124,8 +151,6 @@ public class MyListFragment extends Fragment {
 
         void toolbarAnimateHide();
     }
-
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -135,6 +160,12 @@ public class MyListFragment extends Fragment {
             throw new ClassCastException(context.toString()
                     + " must implement MyListFragment.OnItemSelectedListener");
         }
+    }
+
+
+    public void setRefreshing() {
+        swipe.setRefreshing(true);
+        updateListContent();
     }
 
     @Override

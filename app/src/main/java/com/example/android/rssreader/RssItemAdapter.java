@@ -19,15 +19,6 @@ public class RssItemAdapter
     private List<RssItem> rssItems;
     private MyListFragment myListFragment;
 
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v= null;
-        v = LayoutInflater.
-                from(parent.getContext()).
-                inflate(R.layout.rowlayout, parent, false);
-        return new ViewHolder(v);
-    }
-
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public View mainLayout;
@@ -43,6 +34,16 @@ public class RssItemAdapter
             imageView = (ImageView) v.findViewById(R.id.icon);
         }
     }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v= null;
+        v = LayoutInflater.
+                from(parent.getContext()).
+                inflate(R.layout.rowlayout, parent, false);
+        return new ViewHolder(v);
+    }
+
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {

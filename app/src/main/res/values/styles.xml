@@ -11,7 +11,7 @@
 
     <style name="nicetextstyle">
         <item name="android:background">@color/colorAccent</item>
-        <item name="android:layout_width">wrap_content</item>
+
         <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
         <item name="android:textSize">50dip</item>
     </style>

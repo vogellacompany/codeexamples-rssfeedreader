@@ -10,9 +10,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.Toolbar;
 
@@ -145,16 +143,16 @@ public class RssfeedActivity extends Activity implements
                 Intent intent = new Intent(this, MeinDownloadService.class);
                 intent.putExtra("uri", "http://www.vogella.com/article.rss");
                 startService(intent);
-                View refreshButton = tb.findViewById(R.id.action_refresh);
-//                refreshButton.animate().rotation(100f).setDuration(2000);
-                RotateAnimation rotate =
-                        new RotateAnimation(180, 360,
-                        Animation.RELATIVE_TO_SELF,
-                        0.5f,
-                                Animation.RELATIVE_TO_SELF, 0.5f);
-                rotate.setDuration(1000);
-                rotate.setRepeatCount(Animation.INFINITE);
-                refreshButton.startAnimation(rotate);
+//                View refreshButton = tb.findViewById(R.id.action_refresh);
+////                refreshButton.animate().rotation(100f).setDuration(2000);
+//                RotateAnimation rotate =
+//                        new RotateAnimation(180, 360,
+//                        Animation.RELATIVE_TO_SELF,
+//                        0.5f,
+//                                Animation.RELATIVE_TO_SELF, 0.5f);
+//                rotate.setDuration(1000);
+//                rotate.setRepeatCount(Animation.INFINITE);
+//                refreshButton.startAnimation(rotate);
 
                 return true;
 

@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.webkit.WebView;
 
 public class DetailFragment extends Fragment {
     public static final String EXTRA_URL ="url";
@@ -29,7 +29,7 @@ public class DetailFragment extends Fragment {
     }
 
 	public void setText(String url) {
-		TextView view = (TextView) getView().findViewById(R.id.detailsText);
-		view.setText(url);
+        WebView view = (WebView) getView().findViewById(R.id.detailsText);
+		view.loadUrl(url);
 	}
 }

@@ -5,12 +5,10 @@ import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 
 
@@ -29,10 +27,9 @@ public class RssFeedProvider {
     public static List<RssItem> parse(String rssFeed) {
         List<RssItem> list = new ArrayList<RssItem>();
         XmlPullParser parser = Xml.newPullParser();
-        InputStream stream = null;
-        try {
+        try (InputStream stream = new URL(rssFeed).openConnection().getInputStream();) {
             // auto-detect the encoding from the stream
-            stream = new URL(rssFeed).openConnection().getInputStream();
+
             parser.setInput(stream, null);
             int eventType = parser.getEventType();
             boolean done = false;
@@ -78,14 +75,6 @@ public class RssFeedProvider {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
         return list;
     }

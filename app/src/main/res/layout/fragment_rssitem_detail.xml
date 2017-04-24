@@ -4,13 +4,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
+    <WebView
         android:id="@+id/detailsText"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal|center_vertical"
-        android:layout_marginTop="20dip"
         android:text="Default Text"
-        style="@style/nicetextstyle"
         />
 
 </LinearLayout>

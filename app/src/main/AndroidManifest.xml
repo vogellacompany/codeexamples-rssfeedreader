@@ -18,7 +18,6 @@
             </intent-filter>
         </activity>
         <service android:name=".RSSDownloadService">
-
         </service>
         <activity android:name=".MyPreferences"></activity>
         </application>
